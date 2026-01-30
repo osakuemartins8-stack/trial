@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Premium shirt collection - Discover unique, high-quality shirts with modern designs">
+    <meta name="keywords" content="shirts, fashion, premium clothing, modern design">
+    <title>THREADLINE - Premium Shirt Collection</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuration (load before app.js) -->
+    <script src="config.js"></script>
+    
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">THREADLINE</div>
+            <div class="loading-bar"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="#" class="brand-link">THREADLINE</a>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="shop">Shop</a>
+                <a href="#" class="nav-link" data-page="about">About</a>
+                <a href="#" class="nav-link" data-page="contact">Contact</a>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-icon" id="search-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                        <circle cx="8" cy="8" r="6" stroke-width="1.5"/>
+                        <path d="M12.5 12.5L17 17" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="nav-icon" id="account-btn" aria-label="Account">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                        <circle cx="10" cy="7" r="3" stroke-width="1.5"/>
+                        <path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="nav-icon cart-btn" id="cart-btn" aria-label="Cart">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                        <path d="M3 3h2l1.68 8.39a2 2 0 002 1.61h8.64a2 2 0 002-1.61L18 6H5" stroke-width="1.5" stroke-linecap="round"/>
+                        <circle cx="8" cy="18" r="1" fill="currentColor"/>
+                        <circle cx="15" cy="18" r="1" fill="currentColor"/>
+                    </svg>
+                    <span class="cart-count" id="cart-count">0</span>
+                </button>
+                <button class="nav-icon admin-btn" id="admin-btn" aria-label="Admin Dashboard" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="6" height="6" stroke-width="1.5"/>
+                        <rect x="11" y="3" width="6" height="6" stroke-width="1.5"/>
+                        <rect x="3" y="11" width="6" height="6" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="6" height="6" stroke-width="1.5"/>
+                    </svg>
+                </button>
+            </div>
+            <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="shop-page">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    <span class="line">Elevate</span>
+                    <span class="line">Your Style</span>
+                </h1>
+                <div class="rotating-text-container">
+                    <div class="rotating-word active">Premium Quality</div>
+                    <div class="rotating-word">Modern Design</div>
+                    <div class="rotating-word">Timeless Elegance</div>
+                    <div class="rotating-word">Perfect Fit</div>
+                </div>
+                <p class="hero-subtitle">Discover our curated collection of premium shirts crafted for the modern individual.</p>
+                <button class="hero-cta" onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})">
+                    Explore Collection
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-showcase">
+                    <div class="floating-product active">
+                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600" alt="Classic Shirt">
+                    </div>
+                    <div class="floating-product">
+                        <img src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600" alt="Linen Shirt">
+                    </div>
+                    <div class="floating-product">
+                        <img src="https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?w=600" alt="Evening Shirt">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters & Search -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-bar">
+                <div class="search-box">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                        <circle cx="8" cy="8" r="6" stroke-width="1.5"/>
+                        <path d="M12.5 12.5L17 17" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <input type="text" id="search-input" placeholder="Search shirts..." />
+                </div>
+                <div class="filter-group">
+                    <select id="category-filter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="casual">Casual</option>
+                        <option value="formal">Formal</option>
+                        <option value="sport">Sport</option>
+                        <option value="premium">Premium</option>
+                    </select>
+                    <select id="size-filter" class="filter-select">
+                        <option value="">All Sizes</option>
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                    <select id="sort-filter" class="filter-select">
+                        <option value="newest">Newest</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="popular">Most Popular</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="products-section" id="products">
+        <div class="container">
+            <div class="products-grid" id="products-grid">
+                <div class="loading-products">
+                    <div class="spinner"></div>
+                    <p>Loading products...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Page -->
+    <section class="page-section" id="about-page" style="display: none;">
+        <div class="container">
+            <div class="about-content">
+                <h2 class="section-title">About THREADLINE</h2>
+                <div class="about-grid">
+                    <div class="about-text">
+                        <p>Founded with a passion for quality and design, THREADLINE brings you a curated collection of premium shirts that blend timeless style with modern comfort.</p>
+                        <p>Each piece in our collection is carefully selected to ensure the highest standards of craftsmanship, fabric quality, and design innovation.</p>
+                    </div>
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Happy Customers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">100%</div>
+                            <div class="stat-label">Quality Guaranteed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Customer Support</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Page -->
+    <section class="page-section" id="contact-page" style="display: none;">
+        <div class="container">
+            <div class="contact-content">
+                <h2 class="section-title">Get In Touch</h2>
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <h3>Email</h3>
+                            <p>support@threadline.com</p>
+                        </div>
+                        <div class="contact-item">
+                            <h3>Phone</h3>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                        <div class="contact-item">
+                            <h3>Address</h3>
+                            <p>123 Fashion Street<br>New York, NY 10001</p>
+                        </div>
+                    </div>
+                    <form class="contact-form">
+                        <input type="text" placeholder="Name" required>
+                        <input type="email" placeholder="Email" required>
+                        <textarea placeholder="Message" rows="5" required></textarea>
+                        <button type="submit" class="hero-cta">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Detail Modal -->
+    <div class="modal" id="product-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cart-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content cart-modal-content">
+            <button class="modal-close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="cart-header">
+                <h2>Shopping Cart</h2>
+                <span class="cart-items-count" id="cart-items-count">0 items</span>
+            </div>
+            <div class="cart-items" id="cart-items">
+                <div class="empty-cart-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <p>Your cart is empty</p>
+                </div>
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span class="cart-total-amount" id="cart-total-amount">$0.00</span>
+                </div>
+                <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content auth-modal-content">
+            <button class="modal-close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Login</button>
+                    <button class="auth-tab" data-tab="signup">Sign Up</button>
+                </div>
+                <div class="auth-forms">
+                    <form class="auth-form" id="login-form" style="display: flex;">
+                        <h2>Welcome Back</h2>
+                        <div class="form-group">
+                            <input type="email" id="login-email" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="login-password" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="auth-submit-btn">Login</button>
+                    </form>
+                    <form class="auth-form" id="signup-form" style="display: none;">
+                        <h2>Create Account</h2>
+                        <div class="form-group">
+                            <input type="text" id="signup-name" placeholder="Full Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="signup-email" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="signup-password" placeholder="Password" required>
+                        </div>
+                        <p class="auth-info">You'll receive a verification email after signup</p>
+                        <button type="submit" class="auth-submit-btn">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard (overlay) -->
+    <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <button class="close-admin" id="close-admin">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Close
+            </button>
+        </div>
+
+        <!-- Products Section -->
+        <div class="admin-section active" id="products-section">
+            <div class="section-header">
+                <h2>Products Management</h2>
+                <button class="add-product-btn" id="add-product-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add Product
+                </button>
+            </div>
+            <div class="admin-table-container">
+                <table class="admin-table" id="admin-products-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-products-body">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem;">Click to load products...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="admin-section" id="orders-section" style="display: none;">
+            <div class="section-header">
+                <h2>Orders Management</h2>
+            </div>
+            <div class="admin-table-container">
+                <table class="admin-table" id="admin-orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-orders-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">Loading orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inventory Section -->
+        <div class="admin-section" id="inventory-section" style="display: none;">
+            <div class="section-header">
+                <h2>Inventory Management</h2>
+            </div>
+            <div class="inventory-alerts">
+                <h3>Low Stock Alerts</h3>
+                <div id="low-stock-alerts"></div>
+            </div>
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Current Stock</th>
+                            <th>Threshold</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem;">Loading inventory...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Add/Edit Form Modal -->
+    <div class="modal" id="product-form-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content product-form-content">
+            <button class="modal-close" id="product-form-close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <form class="product-form" id="product-form">
+                <h2 id="form-title">Add New Product</h2>
+                <input type="hidden" id="product-id">
+                
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="product-description" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Price ($)</label>
+                        <input type="number" id="product-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="product-category" required>
+                            <option value="casual">Casual</option>
+                            <option value="formal">Formal</option>
+                            <option value="sport">Sport</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Product Image</label>
+                    <div class="image-upload-options">
+                        <div class="upload-tabs">
+                            <button type="button" class="upload-tab active" data-upload-type="file">
+                                📁 Upload File
+                            </button>
+                            <button type="button" class="upload-tab" data-upload-type="url">
+                                🔗 Image URL
+                            </button>
+                        </div>
+                        
+                        <div class="upload-section" id="file-upload-section">
+                            <div class="file-upload-area" id="file-upload-area">
+                                <input type="file" id="product-image-file" accept="image/*" style="display: none;">
+                                <div class="upload-placeholder">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <p>Click to upload or drag & drop</p>
+                                    <span>PNG, JPG, WEBP up to 5MB</span>
+                                </div>
+                                <div class="upload-preview" id="upload-preview" style="display: none;">
+                                    <img id="preview-image" src="" alt="Preview">
+                                    <button type="button" class="remove-image-btn" id="remove-image-btn">✕</button>
+                                </div>
+                            </div>
+                            <div class="upload-progress" id="upload-progress" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-fill"></div>
+                                </div>
+                                <span class="progress-text" id="progress-text">Uploading... 0%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="upload-section" id="url-upload-section" style="display: none;">
+                            <input type="url" id="product-image-url" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+                    <input type="hidden" id="product-image" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Available Sizes (comma-separated)</label>
+                    <input type="text" id="product-sizes" placeholder="S, M, L, XL" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <input type="number" id="product-stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>SKU</label>
+                        <input type="text" id="product-sku" required>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="form-cancel">Cancel</button>
+                    <button type="submit" class="btn-submit">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3 class="footer-brand">THREADLINE</h3>
+                    <p>Premium shirts for the modern individual</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <a href="#">New Arrivals</a>
+                    <a href="#">Bestsellers</a>
+                    <a href="#">Sale</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <a href="#">Contact Us</a>
+                    <a href="#">Shipping Info</a>
+                    <a href="#">Returns</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Follow Us</h4>
+                    <a href="#">Instagram</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Facebook</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 THREADLINE. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <!-- Main JavaScript -->
+    <script src="app.js"></script>
+    
+    <!-- Analytics & SEO Modules -->
+    <script src="analytics-module.js"></script>
+    <script src="seo-module.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof trackEvent === 'function') {
+            trackEvent('page_view', { page: 'home' });
+        }
+        
+        if (typeof updateMetaTags === 'function') {
+            const homeSchema = {
+                "@context": "https://schema.org",
+                "@type": "Store",
+                "name": "THREADLINE",
+                "description": "Premium shirt collection for the modern individual",
+                "url": window.location.origin
+            };
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.textContent = JSON.stringify(homeSchema);
+            document.head.appendChild(script);
+        }
+    });
+    </script>
+</body>
+</html>

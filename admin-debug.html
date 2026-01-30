@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Debug - THREADLINE</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00ff00;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 10px;
+        }
+        .log {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success {
+            color: #00ff00;
+        }
+        .error {
+            color: #ff0000;
+        }
+        .warning {
+            color: #ffaa00;
+        }
+        .info {
+            color: #00aaff;
+        }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #00cc00;
+        }
+    </style>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>🔧 THREADLINE Admin Debug Console</h1>
+    
+    <div>
+        <button onclick="runDiagnostics()">Run Diagnostics</button>
+        <button onclick="checkAuth()">Check Authentication</button>
+        <button onclick="testSupabase()">Test Supabase</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+        <button onclick="goToAdmin()">Go to Admin Page</button>
+    </div>
+    
+    <div id="logs"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://xkbpltgqwvhcftvvokce.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrYnBsdGdxd3ZoY2Z0dnZva2NlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3MTAzNDcsImV4cCI6MjA4NTI4NjM0N30.dESoY6EH76ZLDqS6EJfB4KXlRtH2sPnci6Kaul2uqiw';
+        
+        let supabaseClient;
+        
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log ${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+        
+        function goToAdmin() {
+            window.location.href = 'admin.html';
+        }
+        
+        async function runDiagnostics() {
+            clearLogs();
+            log('🔍 Starting diagnostics...', 'info');
+            
+            // Check if Supabase library loaded
+            log('Checking if Supabase library loaded...', 'info');
+            if (typeof window.supabase === 'undefined') {
+                log('❌ ERROR: Supabase library not loaded!', 'error');
+                log('This is the main issue. CDN might be blocked.', 'warning');
+                return;
+            } else {
+                log('✅ Supabase library loaded successfully', 'success');
+            }
+            
+            // Initialize Supabase
+            try {
+                log('Initializing Supabase client...', 'info');
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                log('✅ Supabase client created', 'success');
+            } catch (error) {
+                log(`❌ ERROR creating Supabase client: ${error.message}`, 'error');
+                return;
+            }
+            
+            // Test connection
+            await testSupabase();
+            
+            // Check authentication
+            await checkAuth();
+            
+            log('✅ Diagnostics complete!', 'success');
+        }
+        
+        async function testSupabase() {
+            if (!supabaseClient) {
+                log('Initializing Supabase first...', 'info');
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+            
+            log('Testing Supabase connection...', 'info');
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('products')
+                    .select('count');
+                
+                if (error) {
+                    log(`⚠️ Supabase query error: ${error.message}`, 'warning');
+                    log('This might be okay if tables are empty', 'info');
+                } else {
+                    log('✅ Supabase connection successful!', 'success');
+                    log(`Database accessible, response: ${JSON.stringify(data)}`, 'info');
+                }
+            } catch (error) {
+                log(`❌ ERROR testing Supabase: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkAuth() {
+            if (!supabaseClient) {
+                log('Initializing Supabase first...', 'info');
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+            
+            log('Checking authentication status...', 'info');
+            
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                
+                if (error) {
+                    log(`❌ ERROR getting session: ${error.message}`, 'error');
+                    return;
+                }
+                
+                if (!session) {
+                    log('❌ Not authenticated (no session)', 'warning');
+                    log('You need to log in first on index.html', 'info');
+                    log('Then come back to admin.html', 'info');
+                } else {
+                    log('✅ Authenticated!', 'success');
+                    log(`User email: ${session.user.email}`, 'info');
+                    log(`Session expires: ${new Date(session.expires_at * 1000).toLocaleString()}`, 'info');
+                    log('You should be able to access admin.html', 'success');
+                }
+            } catch (error) {
+                log(`❌ ERROR checking auth: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run on load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Debug console loaded', 'success');
+            log('Click "Run Diagnostics" to check everything', 'info');
+            setTimeout(runDiagnostics, 500);
+        });
+    </script>
+</body>
+</html>

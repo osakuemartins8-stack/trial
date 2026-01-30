@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - THREADLINE</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="admin-styles.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuration (load before admin.js) -->
+    <script src="config.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Admin Login Screen -->
+    <div id="admin-login-screen">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <h1>THREADLINE</h1>
+                    <p>Admin Dashboard</p>
+                </div>
+                
+                <form id="admin-login-form">
+                    <div class="form-group">
+                        <label for="admin-email">Email</label>
+                        <input type="email" id="admin-email" required placeholder="admin@example.com" autocomplete="email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-password">Password</label>
+                        <input type="password" id="admin-password" required placeholder="••••••••" autocomplete="current-password">
+                    </div>
+                    
+                    <button type="submit" class="login-btn" id="login-btn">
+                        <span id="login-btn-text">Login</span>
+                        <span id="login-btn-spinner" style="display: none;">Logging in...</span>
+                    </button>
+                    
+                    <p class="login-error" id="login-error" style="display: none;"></p>
+                </form>
+                
+                <div class="login-footer">
+                    <a href="index.html">← Back to Store</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Screen (for after login) -->
+    <div id="loading-screen" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Verifying Admin Access...</p>
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>THREADLINE</h1>
+            <p class="admin-badge">Admin Panel</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+                    <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+                    <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+                    <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-page="products">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" stroke-width="2"/>
+                    <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" stroke-width="2"/>
+                </svg>
+                <span>Products</span>
+            </a>
+            <a href="#" class="nav-item" data-page="orders">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 2H4a2 2 0 00-2 2v5M9 22H4a2 2 0 01-2-2v-5M15 2h5a2 2 0 012 2v5M15 22h5a2 2 0 002-2v-5" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Orders</span>
+            </a>
+            <a href="#" class="nav-item" data-page="payments">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="2" y="5" width="20" height="14" rx="2" stroke-width="2"/>
+                    <path d="M2 10h20" stroke-width="2"/>
+                </svg>
+                <span>Payments</span>
+            </a>
+            <a href="#" class="nav-item" data-page="customers">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Customers</span>
+            </a>
+            <a href="#" class="nav-item" data-page="settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="3" stroke-width="2"/>
+                    <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Settings</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">AD</div>
+                <div>
+                    <p class="user-name" id="user-name">Admin</p>
+                    <p class="user-email" id="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f392979e9a9db3879b819692979f9a9d96dd909c9e">[email&#160;protected]</a></p>
+                </div>
+            </div>
+            <button class="logout-btn" id="logout-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menu-toggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 12h18M3 6h18M3 18h18" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <h2 id="page-title">Dashboard</h2>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" id="notifications-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="badge" id="notification-count">0</span>
+                </button>
+                <a href="index.html" class="icon-btn" title="View Store">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M9 22V12h6v10" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
+            </div>
+        </header>
+
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard-page">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon revenue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Revenue</p>
+                        <h3 class="stat-value" id="total-revenue">$0</h3>
+                        <p class="stat-change positive" id="revenue-change">+0% from last month</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orders">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Orders</p>
+                        <h3 class="stat-value" id="total-orders">0</h3>
+                        <p class="stat-change" id="orders-change">This month</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon products">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Products</p>
+                        <h3 class="stat-value" id="total-products">0</h3>
+                        <p class="stat-change">Active in store</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon customers">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Customers</p>
+                        <h3 class="stat-value" id="total-customers">0</h3>
+                        <p class="stat-change">Registered users</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Revenue Overview</h3>
+                        <select id="revenue-period" class="period-select">
+                            <option value="7">Last 7 days</option>
+                            <option value="30" selected>Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                        </select>
+                    </div>
+                    <canvas id="revenue-chart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Sales by Category</h3>
+                    </div>
+                    <canvas id="category-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <div class="section-header">
+                    <h3>Recent Orders</h3>
+                    <a href="#" class="view-all" data-page="orders">View All</a>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-orders-tbody">
+                            <tr>
+                                <td colspan="6" class="empty-state">No recent orders</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Page -->
+        <div class="page" id="products-page">
+            <div class="page-header">
+                <h2>Product Management</h2>
+                <button class="primary-btn" id="add-product-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add Product
+                </button>
+            </div>
+
+            <div class="filters-bar">
+                <input type="text" id="product-search" class="search-input" placeholder="Search products...">
+                <select id="category-filter" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="casual">Casual</option>
+                    <option value="formal">Formal</option>
+                    <option value="business">Business</option>
+                    <option value="sport">Sport</option>
+                </select>
+                <select id="stock-filter" class="filter-select">
+                    <option value="">All Stock Levels</option>
+                    <option value="in-stock">In Stock</option>
+                    <option value="low-stock">Low Stock</option>
+                    <option value="out-of-stock">Out of Stock</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>SKU</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-tbody">
+                        <tr>
+                            <td colspan="8" class="empty-state">Loading products...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Orders Page -->
+        <div class="page" id="orders-page">
+            <div class="page-header">
+                <h2>Order Management</h2>
+                <button class="secondary-btn" id="export-orders-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Export Orders
+                </button>
+            </div>
+
+            <div class="filters-bar">
+                <input type="text" id="order-search" class="search-input" placeholder="Search orders...">
+                <select id="order-status-filter" class="filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <input type="date" id="order-date-from" class="date-input" placeholder="From">
+                <input type="date" id="order-date-to" class="date-input" placeholder="To">
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-tbody">
+                        <tr>
+                            <td colspan="8" class="empty-state">Loading orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Payments Page -->
+        <div class="page" id="payments-page">
+            <div class="page-header">
+                <h2>Payment Transactions</h2>
+                <button class="secondary-btn" id="export-payments-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Export Report
+                </button>
+            </div>
+
+            <div class="stats-row">
+                <div class="mini-stat">
+                    <p class="mini-stat-label">Total Received</p>
+                    <h4 class="mini-stat-value" id="payments-total">$0.00</h4>
+                </div>
+                <div class="mini-stat">
+                    <p class="mini-stat-label">This Month</p>
+                    <h4 class="mini-stat-value" id="payments-month">$0.00</h4>
+                </div>
+                <div class="mini-stat">
+                    <p class="mini-stat-label">Pending</p>
+                    <h4 class="mini-stat-value" id="payments-pending">$0.00</h4>
+                </div>
+                <div class="mini-stat">
+                    <p class="mini-stat-label">Refunded</p>
+                    <h4 class="mini-stat-value" id="payments-refunded">$0.00</h4>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-tbody">
+                        <tr>
+                            <td colspan="8" class="empty-state">Loading payment transactions...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Customers Page -->
+        <div class="page" id="customers-page">
+            <div class="page-header">
+                <h2>Customer Management</h2>
+                <button class="secondary-btn" id="export-customers-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Export Customers
+                </button>
+            </div>
+
+            <div class="filters-bar">
+                <input type="text" id="customer-search" class="search-input" placeholder="Search customers...">
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Orders</th>
+                            <th>Total Spent</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-tbody">
+                        <tr>
+                            <td colspan="6" class="empty-state">Loading customers...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="settings-page">
+            <div class="page-header">
+                <h2>Settings</h2>
+            </div>
+
+            <div class="settings-container">
+                <div class="settings-card">
+                    <h3>Store Information</h3>
+                    <form id="store-settings-form">
+                        <div class="form-group">
+                            <label>Store Name</label>
+                            <input type="text" id="store-name" value="THREADLINE">
+                        </div>
+                        <div class="form-group">
+                            <label>Store Email</label>
+                            <input type="email" id="store-email" placeholder="store@threadline.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Store Phone</label>
+                            <input type="tel" id="store-phone" placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label>Store Address</label>
+                            <textarea id="store-address" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="primary-btn">Save Changes</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Payment Settings</h3>
+                    <form id="payment-settings-form">
+                        <div class="form-group">
+                            <label>Stripe Publishable Key</label>
+                            <input type="text" id="stripe-key" placeholder="pk_test_...">
+                            <small>Get your key from <a href="https://dashboard.stripe.com" target="_blank">Stripe Dashboard</a></small>
+                        </div>
+                        <div class="form-group">
+                            <label>Currency</label>
+                            <select id="currency">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="enable-payments">
+                                Enable online payments
+                            </label>
+                        </div>
+                        <button type="submit" class="primary-btn">Save Changes</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Email Notifications</h3>
+                    <form id="email-settings-form">
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="notify-new-order" checked>
+                                New order notifications
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="notify-low-stock" checked>
+                                Low stock alerts
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="notify-customer-signup">
+                                New customer signups
+                            </label>
+                        </div>
+                        <button type="submit" class="primary-btn">Save Changes</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Database Management</h3>
+                    <p class="settings-description">Manage your Supabase database connection</p>
+                    <div class="form-group">
+                        <label>Supabase URL</label>
+                        <input type="text" id="supabase-url" value="https://xkbpltgqwvhcftvvokce.supabase.co" readonly>
+                    </div>
+                    <div class="button-group">
+                        <button class="secondary-btn" id="test-connection-btn">Test Connection</button>
+                        <button class="danger-btn" id="clear-sample-data-btn">Clear Sample Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Product Form Modal -->
+    <div class="modal" id="product-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="product-modal-title">Add Product</h3>
+                <button class="modal-close" id="close-product-modal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="product-form">
+                <input type="hidden" id="product-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>SKU *</label>
+                        <input type="text" id="product-sku" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="product-description" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="product-category" required>
+                            <option value="">Select Category</option>
+                            <option value="casual">Casual</option>
+                            <option value="formal">Formal</option>
+                            <option value="business">Business</option>
+                            <option value="sport">Sport</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price *</label>
+                        <input type="number" id="product-price" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stock Quantity *</label>
+                        <input type="number" id="product-stock" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Featured</label>
+                        <select id="product-featured">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Available Sizes</label>
+                    <div class="size-checkboxes">
+                        <label><input type="checkbox" name="sizes" value="XS"> XS</label>
+                        <label><input type="checkbox" name="sizes" value="S"> S</label>
+                        <label><input type="checkbox" name="sizes" value="M"> M</label>
+                        <label><input type="checkbox" name="sizes" value="L"> L</label>
+                        <label><input type="checkbox" name="sizes" value="XL"> XL</label>
+                        <label><input type="checkbox" name="sizes" value="XXL"> XXL</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="product-image" placeholder="https://example.com/image.jpg">
+                    <small>Enter a URL to an image (e.g., from Unsplash or your hosting)</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" id="cancel-product-btn">Cancel</button>
+                    <button type="submit" class="primary-btn">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal" id="order-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-container large">
+            <div class="modal-header">
+                <h3>Order Details</h3>
+                <button class="modal-close" id="close-order-modal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="order-details-content">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Contain
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Load admin.js -->
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - THREADLINE</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .warning h2 {
+            color: #856404;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .warning p {
+            color: #856404;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+        
+        .solution {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .solution h2 {
+            color: #0c5460;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .solution ol {
+            margin-left: 20px;
+            color: #0c5460;
+            line-height: 1.8;
+        }
+        
+        .solution strong {
+            color: #0c5460;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .browser-list {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .browser-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .browser-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ Safari Compatibility Issue</h1>
+        
+        <div class="warning">
+            <h2>🛑 Why Admin Page Won't Load in Safari</h2>
+            <p>Safari's <strong>Intelligent Tracking Prevention</strong> is blocking the Supabase library from accessing browser storage, which prevents the admin dashboard from working.</p>
+            <p><strong>Error:</strong> "Tracking Prevention blocked access to storage"</p>
+            <p>This is a Safari-specific security feature that blocks third-party CDN libraries.</p>
+        </div>
+        
+        <div class="solution">
+            <h2>✅ Quick Solutions (Choose One)</h2>
+            <ol>
+                <li><strong>Use a Different Browser (Easiest)</strong><br>
+                    Open the admin page in Chrome, Firefox, or Edge where tracking prevention isn't as strict.</li>
+                
+                <li><strong>Disable Tracking Prevention Temporarily</strong><br>
+                    Safari → Settings → Privacy → Uncheck "Prevent cross-site tracking"<br>
+                    (Re-enable after using admin dashboard)</li>
+                
+                <li><strong>Use Safari Technology Preview</strong><br>
+                    Download Safari Technology Preview which has different tracking rules.</li>
+            </ol>
+        </div>
+        
+        <div class="browser-list">
+            <button class="browser-btn" onclick="alert('Open admin.html in Chrome for best compatibility')">
+                🔵 Use Chrome
+            </button>
+            <button class="browser-btn" onclick="alert('Open admin.html in Firefox for best compatibility')">
+                🦊 Use Firefox
+            </button>
+            <button class="browser-btn" onclick="alert('Open admin.html in Edge for best compatibility')">
+                🌊 Use Edge
+            </button>
+        </div>
+        
+        <button onclick="tryAdmin()">Try Admin Page Anyway</button>
+        <button onclick="window.location.href='index.html'" style="background: #6c757d;">
+            ← Back to Store
+        </button>
+        
+        <script>
+            function tryAdmin() {
+                alert('Opening admin.html...\n\nIf it gets stuck loading:\n1. Try a different browser\n2. Or disable Safari tracking prevention\n\nSee the solutions above ☝️');
+                window.location.href = 'admin.html';
+            }
+            
+            // Detect Safari
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            if (!isSafari) {
+                document.body.innerHTML = `
+                    <div class="container">
+                        <h1>✅ You're not using Safari!</h1>
+                        <p style="margin: 20px 0; font-size: 18px;">Your browser should work fine with the admin dashboard.</p>
+                        <button onclick="window.location.href='admin.html'" style="font-size: 18px; padding: 16px 32px;">
+                            Go to Admin Dashboard →
+                        </button>
+                    </div>
+                `;
+            }
+        </script>
+    </div>
+</body>
+</html>
